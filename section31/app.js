@@ -29,6 +29,8 @@ var Blog = mongoose.model("Blog", blogSchema);
 });
  */
 // ROUTES
+
+// INDEX
 app.get("/", function(req, res) {
   res.redirect("/blogs");
 });
@@ -39,6 +41,23 @@ app.get("/blogs", function(req, res) {
       console.log(err);
     } else {
       res.render("index", { blogs: blogs });
+    }
+  });
+});
+
+// NEW
+app.get("/blogs/new", function(req, res) {
+  res.render("new");
+});
+
+// CREATE
+app.post("/blogs", function(req, res) {
+  Blog.create(req.body.blog, function(err, newBlog) {
+    if (err) {
+      console.log(err);
+      res.render("new");
+    } else {
+      res.redirect("/blogs");
     }
   });
 });
