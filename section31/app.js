@@ -31,12 +31,12 @@ var Blog = mongoose.model("Blog", blogSchema);
 // ROUTES
 
 // INDEX
-app.get("/", function(req, res) {
+app.get("/", function (req, res) {
   res.redirect("/blogs");
 });
 
-app.get("/blogs", function(req, res) {
-  Blog.find({}, function(err, blogs) {
+app.get("/blogs", function (req, res) {
+  Blog.find({}, function (err, blogs) {
     if (err) {
       console.log(err);
     } else {
@@ -46,13 +46,13 @@ app.get("/blogs", function(req, res) {
 });
 
 // NEW
-app.get("/blogs/new", function(req, res) {
+app.get("/blogs/new", function (req, res) {
   res.render("new");
 });
 
 // CREATE
-app.post("/blogs", function(req, res) {
-  Blog.create(req.body.blog, function(err, newBlog) {
+app.post("/blogs", function (req, res) {
+  Blog.create(req.body.blog, function (err, newBlog) {
     if (err) {
       console.log(err);
       res.render("new");
@@ -62,7 +62,19 @@ app.post("/blogs", function(req, res) {
   });
 });
 
+// SHOW
+app.get("/blogs/:id", function (req, res) {
+  Blog.findById(req.params.id, function (err, foundBlog) {
+    if (err) {
+      console.log(err)
+      res.redirect("/blogs")
+    } else {
+      res.render("show", { blog: foundBlog })
+    }
+  })
+})
+
 // RUN APP
-app.listen("3000", function() {
+app.listen("3000", function () {
   console.log("Blog is up and running!");
 });
