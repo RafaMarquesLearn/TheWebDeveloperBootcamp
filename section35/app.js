@@ -1,17 +1,35 @@
 var express = require("express");
 var bodyparser = require("body-parser");
 var mongoose = require("mongoose");
+var passport = require("passport");
+var LocalStrategy = require("passport-local");
 var Campground = require("./models/campground");
 var Comment = require("./models/comment");
+var User = require("./models/user");
 var seedDB = require("./seeds");
-var app = express();
 
+var app = express();
 mongoose.connect("mongodb://localhost/yelp_camp", { useNewUrlParser: true });
 seedDB();
 
 app.use(bodyparser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
+
+// ==========================
+// PASSPORT CONFIGURATION
+// ==========================
+app.use(require("express-session")({
+  secret: "The birds are all falling!",
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // ==========================
 // CAMPGROUND ROUTES
@@ -93,6 +111,37 @@ app.post("/campgrounds/:id/comments", function (req, res) {
       });
     }
   });
+});
+
+// ==========================
+// AUTH ROUTES
+// ==========================
+app.get("/register", function (req, res) {
+  res.render("register");
+});
+
+app.post("/register", function (req, res) {
+  var newUser = new User({ username: req.body.username });
+  User.register(newUser, req.body.password, function (err, user) {
+    if (err) {
+      console.log(err);
+      return res.render("register");
+    }
+    passport.authenticate("local")(req, res, function () {
+      res.redirect("/campgrounds");
+    });
+  });
+});
+
+app.get("/login", function (req, res) {
+  res.render("login");
+});
+
+app.post("/login", passport.authenticate("local", {
+  successRedirect: "/campgrounds",
+  failureRedirect: "/login"
+}), function (req, res) {
+
 });
 
 app.listen(3000, function () {
