@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var Campground = require("../models/campground");
 
+// index
 router.get("/", function(req, res) {
   Campground.find({}, function(err, allCampgrounds) {
     if (err) {
@@ -12,10 +13,12 @@ router.get("/", function(req, res) {
   });
 });
 
+// new
 router.get("/new", isLoggedIn, function(req, res) {
   res.render("campgrounds/new");
 });
 
+// create
 router.post("/", isLoggedIn, function(req, res) {
   var name = req.body.name;
   var imageUrl = req.body.imageUrl;
@@ -39,6 +42,7 @@ router.post("/", isLoggedIn, function(req, res) {
   });
 });
 
+// show
 router.get("/:id", function(req, res) {
   Campground.findById(req.params.id)
     .populate("comments")
@@ -49,6 +53,33 @@ router.get("/:id", function(req, res) {
         res.render("campgrounds/show", { campground: foundCampground });
       }
     });
+});
+
+// edit
+router.get("/:id/edit", isLoggedIn, function(req, res) {
+  Campground.findById(req.params.id, function(err, foundCampground) {
+    if (err) {
+      console.log(err);
+      res.redirect("/campgrounds");
+    } else {
+      res.render("campgrounds/edit", { campground: foundCampground });
+    }
+  });
+});
+
+// update
+router.put("/:id", isLoggedIn, function(req, res) {
+  Campground.findByIdAndUpdate(req.params.id, req.body.campground, function(
+    err,
+    foundCampground
+  ) {
+    if (err) {
+      console.log(err);
+      res.redirect("/campgrounds");
+    } else {
+      res.redirect("/campgrounds/" + req.params.id);
+    }
+  });
 });
 
 function isLoggedIn(req, res, next) {
