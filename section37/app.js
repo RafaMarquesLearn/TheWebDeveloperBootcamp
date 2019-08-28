@@ -8,11 +8,11 @@ var User = require("./models/user");
 var campgroundRoutes = require("./routes/campgrounds");
 var commentRoutes = require("./routes/comments");
 var authRoutes = require("./routes/index");
-var seedDB = require("./seeds");
+//var seedDB = require("./seeds");
 
 var app = express();
 mongoose.connect("mongodb://localhost/yelp_camp", { useNewUrlParser: true });
-seedDB();
+//seedDB();
 app.use(bodyparser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
