@@ -1,6 +1,7 @@
 var express = require("express");
 var bodyparser = require("body-parser");
 var mongoose = require("mongoose");
+var flash = require('connect-flash');
 var passport = require("passport");
 var LocalStrategy = require("passport-local");
 var methodOverride = require("method-override");
@@ -17,6 +18,7 @@ app.use(bodyparser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
+app.use(flash());
 
 // ==========================
 // PASSPORT CONFIGURATION
@@ -37,8 +39,10 @@ passport.deserializeUser(User.deserializeUser());
 // ==========================
 // CUSTOM MIDDLEWARE
 // ==========================
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.locals.currentUser = req.user;
+  res.locals.error = req.flash("error");
+  res.locals.success = req.flash("success");
   next();
 });
 
@@ -49,6 +53,6 @@ app.use("/", authRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/comments", commentRoutes);
 
-app.listen(3000, function() {
+app.listen(3000, function () {
   console.log("YelpCamp is running on port 3000.");
 });
